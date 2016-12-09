@@ -27,6 +27,7 @@ float duty1, duty2, duty3, duty4, duty5, duty6;
 char buffer[6];
 int chipSelect = 53;
 File myData; //creo objeto de tipo File
+File mySpeed;
 
 String NMEA;
 
@@ -64,7 +65,7 @@ class sensor {
         digitalWrite(pin4, HIGH);
         delayMicroseconds(5);
 
-        duration = pulseIn(pin2, HIGH);
+        duration = pulseIn(pin2, HIGH, 40);
         cm = microsecondsToCentimeters(duration);
 
 
@@ -91,7 +92,7 @@ class sensor {
 
         digitalWrite(pin4, HIGH);
         //delayMicroseconds(5);
-        duration = pulseIn(pin2, HIGH);
+        duration = pulseIn(pin2, HIGH, 40);
         cm = microsecondsToCentimeters(duration);
         dato[n - 1] = cm;
         digitalWrite(pin4, LOW);
@@ -296,6 +297,13 @@ void setup() {
     myData.close();
     delay(100);
   }
+  mySpeed = SD.open("PTSpeed.txt", FILE_WRITE);
+  delay(100);
+  if(mySpeed){
+    mySpeed.println("Speed");
+    mySpeed.close();
+    delay(100);
+  }
   Serial.println("Creating tasks...");
 
 //  task1 = scheduler->createTask(&func1, 60); //Creates a task associated to the 'func1' function with 60 bytes of stack memory.
@@ -336,15 +344,22 @@ void func2()
       char c = GPS.read();
     }
     NMEA = GPS.lastNMEA();
-    Serial.println(NMEA);
+//    Serial.println(NMEA);
 
     GPS.parse(GPS.lastNMEA());
-    Serial.print("Velocidad: ");
-    Serial.println(GPS.speed);
-    Serial.print("Ubicacion: ");
-    Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
-    Serial.print(", "); 
-    Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
+//    Serial.print("Velocidad: ");
+//    Serial.println(GPS.speed);
+//    Serial.print("Ubicacion: ");
+//    Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
+//    Serial.print(", "); 
+//    Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
+
+    mySpeed = SD.open("PTSpeed.txt", FILE_WRITE);
+
+    if(mySpeed){
+      mySpeed.println(GPS.speed);
+      mySpeed.close();
+    }
   }
 }
 
